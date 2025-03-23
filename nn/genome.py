@@ -14,23 +14,22 @@ class Genome:
         self.out_features: int = out_features
         self.nodes: List[Node] = []
         self.edges: List[Edge] = []
-        self.__initialize_genome(in_features, out_features)
 
-    def __initialize_genome(self, in_features: int, out_features: int) -> None:
-        for _ in range(in_features):
+    def initialize_genome(self) -> None:
+        for _ in range(self.in_features):
             new_node: Node = Node(self.node_counter.increment(), 0, relu)
             self.add_node(new_node)
 
-        for _ in range(out_features):
+        for _ in range(self.out_features):
             new_node: Node = Node(self.node_counter.increment(), 0, relu)
             self.add_node(new_node)
 
-        for i in range(1, in_features + 1):
-            for j in range(1, out_features + 1):
+        for i in range(1, self.in_features + 1):
+            for j in range(1, self.out_features + 1):
                 self.add_edge(
                     Edge(
-                        Link(i, in_features + j),
-                        random.random() * np.sqrt(2 / in_features),
+                        Link(i, self.in_features + j),
+                        random.random() * np.sqrt(2 / self.in_features),
                         True,
                     )
                 )
