@@ -1,7 +1,7 @@
 class Counter:
-    value = 0  # Class-level variable
+    value = 1 # Class-level variable
 
-    @classmethod
-    def increment(cls):
-        cls.value += 1
-        return cls.value
+    def increment(self):
+        prev_value: int = self.value
+        self.value += 1
+        return prev_value
