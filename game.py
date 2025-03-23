@@ -25,7 +25,7 @@ class ChromeDinoGame:
         self._setup_display()
 
         # Initialize game state
-        self.game_speed: int = 20
+        self.game_speed: int = settings.game_speed
         self.x_pos_bg: int = 0
         self.y_pos_bg: int = 380
         self.points: int = 0
