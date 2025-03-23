@@ -34,7 +34,7 @@ class Genome:
                     )
                 )
 
-    def find_node(self, node_id: int) -> Node:
+    def find_node(self, node_id: int) -> Node | None:
         for node in self.nodes:
             if node.id == node_id:
                 return node
@@ -43,7 +43,7 @@ class Genome:
     def add_node(self, new_node: Node) -> None:
         self.nodes.append(new_node)
 
-    def find_edge(self, link: Link) -> Edge:
+    def find_edge(self, link: Link) -> Edge | None:
         for edge in self.edges:
             if edge.link == link:
                 return edge
@@ -53,39 +53,36 @@ class Genome:
         self.edges.append(new_edge)
 
     def remove_node(self, node_id: int) -> None:
-        node: Node = self.find_node(node_id)
+        node: Node | None = self.find_node(node_id)
+        if node is None:
+            return
+
         self.nodes.remove(node)
 
-        to_remove: List[Edge] = []
+        edges_to_remove = []
         for edge in self.edges:
             if edge.link.input_id == node_id or edge.link.output_id == node_id:
-                to_remove.append(edge)
-        self.edges = [edge for edge in self.edges if edge not in to_remove]
+                edges_to_remove.append(edge)
+
+        # Remove the collected edges
+        for edge in edges_to_remove:
+            self.edges.remove(edge)
 
     def get_input_or_hidden_nodes(self) -> List[int]:
-        node_ids: Set[int] = set()
-        for edge in self.edges:
-            node_ids.add(edge.link.input_id)
-        return list(node_ids)
+        return self.get_input_nodes() + self.get_hidden_nodes()
+
+    def get_input_nodes(self) -> List[int]:
+        return list(range(1, self.in_features + 1))
 
     def get_output_nodes(self) -> List[int]:
-        input_or_hidden_nodes: List[int] = self.get_input_or_hidden_nodes()
-        node_ids: List[int] = [node.id for node in self.nodes]
-        return list(set(node_ids) - set(input_or_hidden_nodes))
+        return list(
+            range(self.in_features + 1, self.in_features + self.out_features + 1)
+        )
 
     def get_hidden_nodes(self) -> List[int]:
-        hidden: List[int] = []
-        for node in self.nodes:
-            has_input: bool = False
-            has_output: bool = False
-            for edge in self.edges:
-                if edge.link.input_id == node.id:
-                    has_output = True
-                if edge.link.output_id == node.id:
-                    has_input = True
-            if has_input and has_output:
-                hidden.append(node.id)
-        return hidden
+        return list(
+            range(self.in_features + self.out_features + 2, len(self.nodes) + 1)
+        )
 
     def would_create_cycle(self, new_link: Link) -> bool:
         input_id: int = new_link.output_id

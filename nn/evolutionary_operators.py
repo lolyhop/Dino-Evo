@@ -66,6 +66,9 @@ def mutate(genome: Genome) -> None:
 
 def mutate_add_edge(genome: Genome) -> None:
     in_id_range: range = genome.get_hidden_nodes() + genome.get_output_nodes()
+    if len(in_id_range) == 0:
+        return
+
     input_id: int = random.choice(range(1, genome.in_features + 1))
     output_id: int = random.choice(in_id_range)
     while input_id == output_id:
@@ -91,6 +94,8 @@ def mutate_add_node(genome: Genome):
     old_edge.is_enabled = False
 
     new_node: Node = Node(genome.node_counter.increment(), random.random(), relu)
+
+    genome.add_node(new_node)
 
     old_link: Link = old_edge.link
     old_weight: float = old_edge.weight
