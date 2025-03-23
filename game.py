@@ -44,6 +44,7 @@ class ChromeDinoGame:
         self.population_controller.initialize_population()
 
         running: bool = True
+        n_generation: int = 0
         while running:
             # Handle events
             for event in pygame.event.get():
@@ -108,7 +109,7 @@ class ChromeDinoGame:
 
             # Display algorithm statistics in the left corner
             generation_text: Surface = settings.font.render(
-                f"Generation: {len(self.population_controller.population)}",
+                f"Generation: {n_generation}",
                 True,
                 (0, 0, 0),
             )
@@ -136,6 +137,7 @@ class ChromeDinoGame:
             # Check if game over
             if not self.population_controller.check_population_alive():
                 # Reinitialize population
+                n_generation += 1
                 self.population_controller.evolve_population()
 
                 # Reset game state
