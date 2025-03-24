@@ -2,28 +2,36 @@ import numpy as np
 from nn.genome import Genome
 from nn.node import Node
 from nn.edge import Edge
-from typing import List, Dict
 
 
-# TODO: verify correctness and integrate usage of bias/activation
 class FeedForwardNetwork:
     def __init__(self, genome: Genome):
         self.genome: Genome = genome
-        self.nodes: List[Node] = genome.nodes
-        self.edges: List[Edge] = genome.edges
+        self.nodes: list[Node] = genome.nodes
+        self.edges: list[Edge] = genome.edges
         self.input_size: int = genome.in_features
         self.output_size: int = genome.out_features
 
         # Create a mapping from node ID to node object
-        self.node_map: Dict[int, Node] = {node.id: node for node in self.nodes}
+        self.node_map: dict[int, Node] = {node.id: node for node in self.nodes}
 
-    def _get_topological_order(self) -> List[int]:
-        """Compute topological ordering of nodes for correct forward pass."""
+    def _get_topological_order(self) -> list[int]:
+        """
+        Computes the topological order of the nodes in the feedforward network.
+
+        This method ensures that each node is processed only after all its dependencies (input nodes)
+        have been processed. It starts with the input nodes and iteratively adds nodes to the order
+        as their dependencies are satisfied. If a cycle is detected, the remaining nodes are added
+        in an arbitrary order to prevent an infinite loop.
+
+        Returns:
+            list[int]: A list of node IDs in topological order.
+        """
         # Start with input nodes
         order = list(range(1, self.input_size + 1))
 
         # Create a dictionary of dependencies (which nodes need to be processed before others)
-        dependencies: Dict[int, List[int]] = {node.id: [] for node in self.nodes}
+        dependencies: dict[int, list[int]] = {node.id: [] for node in self.nodes}
         for edge in self.edges:
             if not edge.is_enabled:
                 continue
@@ -54,7 +62,21 @@ class FeedForwardNetwork:
 
         return order
 
-    def forward(self, inputs):
+    def forward(self, inputs: np.ndarray) -> np.ndarray:
+        """
+        Forward pass through the feedforward network.
+
+        This method takes an input array, processes it through the network, and returns the output values
+        from the output nodes. It computes the topological order of the nodes to ensure that each node is
+        processed only after all its dependencies have been satisfied. The method also handles the activation
+        of each node based on the weighted sum of its inputs and its bias.
+
+        Args:
+            inputs (np.ndarray): A numpy array containing the input values for the network.
+
+        Returns:
+            np.ndarray: A numpy array containing the output values from the output nodes.
+        """
         # Create dictionaries to store the output of each node
         node_outputs = {node.id: 0.0 for node in self.nodes}
 

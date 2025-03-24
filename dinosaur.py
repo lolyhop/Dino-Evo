@@ -57,10 +57,18 @@ class Dinosaur:
 
     def update(self, game_metadata: dict[str, float]) -> None:
         """
-        Update the dinosaur's state based on AI decisions or user input.
+        Updates the state of the dinosaur based on the current game metadata.
+
+        This method processes the game state to determine the appropriate action for the dinosaur,
+        such as jumping or ducking. It also updates the dinosaur's position, animation state, and
+        fitness score based on the actions taken.
 
         Args:
-            obstacles: list of obstacles in the game
+            game_metadata (dict[str, float]): A dictionary containing the current state of the game,
+            which includes relevant information for decision making.
+
+        Returns:
+            None: This method modifies the internal state of the dinosaur in place.
         """
         if not self.is_alive:
             return None
@@ -195,6 +203,9 @@ class Dinosaur:
 
         Args:
             screen: Pygame surface to draw on
+
+        Returns:
+            None: This method modifies the internal state of the dinosaur in place.
         """
         if not self.is_alive:
             return

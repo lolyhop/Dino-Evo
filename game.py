@@ -1,14 +1,11 @@
-from __future__ import annotations
-import random
-from typing import List, Dict, Any
-
-import pygame
-from pygame import Surface
-from pygame.time import Clock
-
-from settings import settings
 from entities import Obstacle, Cloud, SmallCactus, LargeCactus, Bird, Background
 from population_controller import PopulationController
+from pygame import Surface
+from pygame.time import Clock
+from settings import settings
+from typing import Any
+import random
+import pygame
 
 
 class ChromeDinoGame:
@@ -29,7 +26,7 @@ class ChromeDinoGame:
         self.x_pos_bg: int = 0
         self.y_pos_bg: int = 380
         self.points: int = 0
-        self.obstacles: List[Obstacle] = []
+        self.obstacles: list[Obstacle] = []
         self.population_controller: PopulationController = PopulationController()
 
     def run(self) -> None:
@@ -56,7 +53,7 @@ class ChromeDinoGame:
             self.screen.fill((255, 255, 255))
 
             # Compose metadata about the current state of the game
-            game_metadata: Dict[str, Any] = {
+            game_metadata: dict[str, Any] = {
                 "points": self.points,
                 "game_speed": self.game_speed,
                 "obstacles": self.obstacles,
@@ -133,6 +130,7 @@ class ChromeDinoGame:
             self.points += 1
             if self.points % 10 == 0:
                 self.game_speed += settings.game_acceleration
+                self.game_speed = min(self.game_speed, settings.max_game_speed)
 
             # Check if game over
             if not self.population_controller.check_population_alive():

@@ -18,7 +18,20 @@ class DinosaurController:
         self.actions = ["nothing", "up", "down"]
 
     def predict_action(self, features: np.ndarray) -> str:
-        """Predict the next action based on current game state."""
+        """
+        Predicts the action to be taken based on the provided features.
+
+        This method takes in a numpy array of features, processes it through the
+        FeedForwardNetwork, and returns the predicted action as a string. The action
+        is selected based on the probabilities obtained from the softmax function
+        applied to the network's output logits.
+
+        Args:
+            features (np.ndarray): A numpy array containing the input features for the network.
+
+        Returns:
+            str: The predicted action, which can be "nothing", "up", or "down".
+        """
 
         ffn: FeedForwardNetwork = FeedForwardNetwork(self.genome)
 

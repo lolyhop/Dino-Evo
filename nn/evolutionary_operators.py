@@ -8,6 +8,19 @@ from nn.activations import relu
 
 
 def crossover(dominant: Genome, recessive: Genome) -> Genome:
+    """
+    Performs crossover between two genomes to produce an offspring genome.
+
+    Performs crossover on shared nodes and edges.
+    Takes excessive nodes and edges from dominant parent.
+
+    Args:
+        dominant (Genome): The dominant genome to be crossed over.
+        recessive (Genome): The recessive genome to be crossed over.
+
+    Returns:
+        Genome: A new genome that is the result of the crossover between the dominant and recessive genomes.
+    """
     offspring: Genome = Genome(
         dominant.in_features,
         dominant.out_features,
@@ -33,6 +46,19 @@ def crossover(dominant: Genome, recessive: Genome) -> Genome:
 
 
 def crossover_node(a: Node, b: Node) -> Node:
+    """
+    Performs crossover between two nodes to produce a new node.
+
+    This function takes two nodes as input and randomly selects their bias and activation function
+    to create a new node. The new node will have the same ID as the input nodes.
+
+    Args:
+        a (Node): The first node to crossover.
+        b (Node): The second node to crossover.
+
+    Returns:
+        Node: A new node that is the result of the crossover between the two input nodes.
+    """
     assert a.id == b.id
     node_id: int = a.id
     bias: float = random.choice([a.bias, b.bias])
@@ -41,6 +67,19 @@ def crossover_node(a: Node, b: Node) -> Node:
 
 
 def crossover_edge(a: Edge, b: Edge) -> Edge:
+    """
+    Performs crossover between two edges to produce a new edge.
+
+    This function takes two edges as input and randomly selects their weight and enabled status
+    to create a new edge. The new edge will have the same link as the input edges.
+
+    Args:
+        a (Edge): The first edge to crossover.
+        b (Edge): The second edge to crossover.
+
+    Returns:
+        Edge: A new edge that is the result of the crossover between the two input edges.
+    """
     assert a.link == b.link
     link: Link = a.link
     weight: float = random.choice([a.weight, b.weight])
@@ -53,6 +92,21 @@ def mutate(
     mutation_rate: float,
     mutation_scale: float,
 ) -> None:
+    """
+    Mutates the given genome based on the specified mutation rate and scale.
+
+    This function applies various mutation operations to the genome, including adding edges,
+    adding nodes, removing nodes, and mutating weights and biases. The mutation operations
+    are performed with a probability defined by the mutation_rate parameter.
+
+    Args:
+        genome (Genome): The genome to be mutated.
+        mutation_rate (float): The probability of applying a mutation operation.
+        mutation_scale (float): The scale factor for weight and bias mutations.
+
+    Returns:
+        None: This function modifies the genome in place.
+    """
     if random.random() < mutation_rate:
         mutate_add_edge(genome)
     if random.random() < mutation_rate:
@@ -64,6 +118,20 @@ def mutate(
 
 
 def mutate_add_edge(genome: Genome) -> None:
+    """
+    Adds a new edge to the genome by creating a link between two nodes.
+
+    This function randomly selects an input node and an output node from the genome,
+    ensuring that they are not the same. It then creates a new link and checks for
+    duplicates before adding the edge to the genome. If the new edge would create a cycle,
+    it is not added.
+
+    Args:
+        genome (Genome): The genome to which the new edge will be added.
+
+    Returns:
+        None: This function modifies the genome in place.
+    """
     in_id_range: range = genome.get_hidden_nodes() + genome.get_output_nodes()
     if len(in_id_range) == 0:
         return
@@ -87,6 +155,20 @@ def mutate_add_edge(genome: Genome) -> None:
 
 
 def mutate_add_node(genome: Genome):
+    """
+    Mutates the genome by adding a new node to an existing edge.
+
+    This function selects a random edge from the genome, disables it, and creates a new node.
+    The new node is connected to the input and output of the old edge, effectively splitting
+    the edge into two. The new node's activation function is set to ReLU, and its weight is
+    initialized randomly.
+
+    Args:
+        genome (Genome): The genome to which the new node will be added.
+
+    Returns:
+        None: This function modifies the genome in place.
+    """
     if not genome.edges:
         return
     old_edge: Edge = random.choice(genome.edges)
@@ -104,6 +186,19 @@ def mutate_add_node(genome: Genome):
 
 
 def mutate_remove_node(genome: Genome):
+    """
+    Mutates the genome by removing a node from the network.
+
+    This function selects a random hidden node from the genome and removes it,
+    effectively altering the structure of the neural network. If there are no
+    hidden nodes available, the function will exit without making any changes.
+
+    Args:
+        genome (Genome): The genome from which a node will be removed.
+
+    Returns:
+        None: This function modifies the genome in place.
+    """
     hidden_nodes: list[int] = genome.get_hidden_nodes()
     if not hidden_nodes:
         return
@@ -117,6 +212,23 @@ def mutate_weights(
     mutation_rate: float,
     mutation_scale: float,
 ) -> None:
+    """
+    Mutates the weights of the edges in the genome.
+
+    This function iterates through all edges in the genome and applies a mutation
+    to the weight of each edge based on the specified mutation rate and mutation scale.
+    If a randomly generated number is less than the mutation rate, the weight of the edge
+    is adjusted by adding a value drawn from a normal distribution with mean 0 and
+    standard deviation equal to the mutation scale.
+
+    Args:
+        genome (Genome): The genome whose edges' weights will be mutated.
+        mutation_rate (float): The probability of mutating each edge's weight.
+        mutation_scale (float): The standard deviation of the normal distribution used for mutation.
+
+    Returns:
+        None: This function modifies the genome in place.
+    """
     for edge in genome.edges:
         if random.random() < mutation_rate:
             edge.weight += np.random.normal(0, mutation_scale)
@@ -127,6 +239,23 @@ def mutate_bias(
     mutation_rate: float,
     mutation_scale: float,
 ) -> None:
+    """
+    Mutates the biases of the nodes in the genome.
+
+    This function iterates through all nodes in the genome and applies a mutation
+    to the bias of each node based on the specified mutation rate and mutation scale.
+    If a randomly generated number is less than the mutation rate, the bias of the node
+    is adjusted by adding a value drawn from a normal distribution with mean 0 and
+    standard deviation equal to the mutation scale.
+
+    Args:
+        genome (Genome): The genome whose nodes' biases will be mutated.
+        mutation_rate (float): The probability of mutating each node's bias.
+        mutation_scale (float): The standard deviation of the normal distribution used for mutation.
+
+    Returns:
+        None: This function modifies the genome in place.
+    """
     for node in genome.nodes:
         if random.random() < mutation_rate:
             node.bias += np.random.normal(0, mutation_scale)

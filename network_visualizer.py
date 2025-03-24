@@ -2,7 +2,6 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import numpy as np
 from nn.genome import Genome
-from typing import List
 
 
 def create_network_image(genome: Genome, filename: str = None):
@@ -69,7 +68,7 @@ class NetworkVisualizer:
         self._position_hidden_nodes(hidden_nodes)
         self._position_output_nodes(output_nodes)
 
-    def _position_input_nodes(self, input_nodes: List[int]):
+    def _position_input_nodes(self, input_nodes: list[int]):
         """Position input nodes at the left side of the visualization."""
         num_nodes = len(input_nodes)
         if num_nodes == 0:
@@ -79,7 +78,7 @@ class NetworkVisualizer:
         for i, node_id in enumerate(input_nodes):
             self.node_positions[node_id] = (0.1, 0.1 + i * y_step)
 
-    def _position_output_nodes(self, output_nodes: List[int]):
+    def _position_output_nodes(self, output_nodes: list[int]):
         """Position output nodes at the right side of the visualization."""
         num_nodes = len(output_nodes)
         if num_nodes == 0:
@@ -89,7 +88,7 @@ class NetworkVisualizer:
         for i, node_id in enumerate(output_nodes):
             self.node_positions[node_id] = (0.9, 0.1 + i * y_step)
 
-    def _position_hidden_nodes(self, hidden_nodes: List[int]):
+    def _position_hidden_nodes(self, hidden_nodes: list[int]):
         """Position hidden nodes in the middle of the visualization."""
         num_nodes = len(hidden_nodes)
         if num_nodes == 0:

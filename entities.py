@@ -1,11 +1,6 @@
-from __future__ import annotations
-
 import random
-from typing import List
-
 from pygame import Rect, Surface
 from pygame.image import load
-
 from settings import settings
 
 
@@ -47,7 +42,7 @@ class Obstacle:
     Obstacles move from right to left and are removed when they go off-screen.
     """
 
-    def __init__(self, assets: List[Surface], type_idx: int) -> None:
+    def __init__(self, assets: list[Surface], type_idx: int) -> None:
         """
         Initialize an obstacle.
 
@@ -55,7 +50,7 @@ class Obstacle:
             assets: List of possible obstacle images
             type_idx: Index of the image to use
         """
-        self.image: List[Surface] = assets
+        self.image: list[Surface] = assets
         self.type: int = type_idx
         self.rect: Rect = self.image[self.type].get_rect()
         self.rect.x = settings.screen_width
@@ -79,7 +74,7 @@ class SmallCactus(Obstacle):
 
     def __init__(self) -> None:
         self.type: int = random.randint(0, 2)
-        self.small_cactus_assets: List[Surface] = [
+        self.small_cactus_assets: list[Surface] = [
             load("assets/SmallCactus1.png"),
             load("assets/SmallCactus2.png"),
             load("assets/SmallCactus3.png"),
@@ -93,7 +88,7 @@ class LargeCactus(Obstacle):
 
     def __init__(self) -> None:
         self.type: int = random.randint(0, 2)
-        self.large_cactus_assets: List[Surface] = [
+        self.large_cactus_assets: list[Surface] = [
             load("assets/LargeCactus1.png"),
             load("assets/LargeCactus2.png"),
             load("assets/LargeCactus3.png"),
@@ -112,7 +107,7 @@ class Bird(Obstacle):
     def __init__(self) -> None:
         self.type: int = 0
         self.index: int = 0
-        self.bird_assets: List[Surface] = [
+        self.bird_assets: list[Surface] = [
             load("assets/Bird1.png"),
             load("assets/Bird2.png"),
         ]
