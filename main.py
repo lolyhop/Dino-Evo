@@ -1,5 +1,5 @@
-from entities import Obstacle, Cloud, SmallCactus, LargeCactus, Bird, Background
-from population_controller import PopulationController
+from game.entities import Obstacle, Cloud, SmallCactus, LargeCactus, Bird, Background
+from game.population_controller import PopulationController
 from pygame import Surface
 from pygame.time import Clock
 from settings import settings

@@ -1,10 +1,10 @@
-from nn.genome import Genome
+from neat.genome import Genome
 from typing import Callable
-from nn.edge import Edge, Link
-from nn.node import Node
+from neat.edge import Edge, Link
+from neat.node import Node
 import random
 import numpy as np
-from nn.activations import relu
+from neat.activations import relu
 
 
 def crossover(dominant: Genome, recessive: Genome) -> Genome:

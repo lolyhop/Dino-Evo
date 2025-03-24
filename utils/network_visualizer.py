@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import numpy as np
-from nn.genome import Genome
+from neat.genome import Genome
 
 
 def create_network_image(genome: Genome, filename: str = None):

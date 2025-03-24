@@ -1,6 +1,6 @@
-from nn.ffn import FeedForwardNetwork
-from nn.genome import Genome
-from nn.activations import softmax
+from neat.ffn import FeedForwardNetwork
+from neat.genome import Genome
+from neat.activations import softmax
 import numpy as np
 
 

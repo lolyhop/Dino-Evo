@@ -1,9 +1,9 @@
 import random
 import numpy as np
-from nn.activations import relu
-from nn.node import Node
-from nn.edge import Edge, Link
-from nn.counter import Counter
+from neat.activations import relu
+from neat.node import Node
+from neat.edge import Edge, Link
+from neat.counter import Counter
 
 
 class Genome:

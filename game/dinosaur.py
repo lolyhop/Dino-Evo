@@ -1,8 +1,8 @@
 from pygame import Rect, Surface
 from pygame.image import load
 from typing import Literal, Any
-from dinosaur_controller import DinosaurController
-from entities import Bird, Obstacle
+from game.dinosaur_controller import DinosaurController
+from game.entities import Bird, Obstacle
 from settings import settings
 import pygame
 import random

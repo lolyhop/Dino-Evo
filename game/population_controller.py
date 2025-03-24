@@ -3,13 +3,13 @@ from typing import Any
 
 from pygame import Surface
 
-from dinosaur import Dinosaur
-from dinosaur_controller import DinosaurController
-from entities import Obstacle
+from game.dinosaur import Dinosaur
+from game.dinosaur_controller import DinosaurController
+from game.entities import Obstacle
 from settings import settings
 
-from nn.evolutionary_operators import crossover, mutate
-from nn.genome import Genome
+from neat.evolutionary_operators import crossover, mutate
+from neat.genome import Genome
 
 INPUT_FEATURES: int = 9
 OUTPUT_FEATURES: int = 3

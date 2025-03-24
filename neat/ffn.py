@@ -1,7 +1,7 @@
 import numpy as np
-from nn.genome import Genome
-from nn.node import Node
-from nn.edge import Edge
+from neat.genome import Genome
+from neat.node import Node
+from neat.edge import Edge
 
 
 class FeedForwardNetwork:
