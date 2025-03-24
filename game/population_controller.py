@@ -16,12 +16,17 @@ OUTPUT_FEATURES: int = 3
 
 
 class PopulationController:
-    def __init__(self) -> None:
+    def __init__(self, genomes: list[Genome] | None = None) -> None:
         self.population_size: int = settings.population_size
         self.mutation_rate: float = settings.mutation_rate
         self.mutation_scale: float = settings.mutation_scale
         self.selection_amount: float = settings.selection_amount
-        self.population: list[Dinosaur] = []
+        if genomes is None:
+            self.population: list[Dinosaur] = []
+        else:
+            self.population: list[Dinosaur] = [
+                Dinosaur(DinosaurController(genome)) for genome in genomes
+            ]
         self.previous_best_fitness: int = 0
 
     def check_population_alive(self) -> bool:

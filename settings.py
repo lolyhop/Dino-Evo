@@ -25,6 +25,12 @@ class Settings(BaseSettings):
         0.2  # percentage of population to replace with new dinosaurs
     )
 
+    # Training settings
+    max_generation_time: float = 10.0  # Maximum seconds per generation
+
+    # Serialization settings
+    serialization_path: str = "population.json"
+
     def initialize_font(self):
         """Initialize the font after pygame is initialized."""
         self.font = Font("freesansbold.ttf", 20)

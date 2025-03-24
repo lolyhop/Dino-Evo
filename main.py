@@ -1,11 +1,13 @@
 from game.entities import Obstacle, Cloud, SmallCactus, LargeCactus, Bird, Background
 from game.population_controller import PopulationController
+from utils.serialization import deserialize_population
 from pygame import Surface
 from pygame.time import Clock
 from settings import settings
 from typing import Any
 import random
 import pygame
+import os
 
 
 class ChromeDinoGame:
@@ -27,7 +29,13 @@ class ChromeDinoGame:
         self.y_pos_bg: int = 380
         self.points: int = 0
         self.obstacles: list[Obstacle] = []
-        self.population_controller: PopulationController = PopulationController()
+
+        if os.path.exists(settings.serialization_path):
+            self.population_controller: PopulationController = PopulationController(
+                deserialize_population(settings.serialization_path)
+            )
+        else:
+            self.population_controller: PopulationController = PopulationController()
 
     def run(self) -> None:
         """Main game loop that handles events, updates game state, and renders."""
@@ -38,7 +46,8 @@ class ChromeDinoGame:
         clock = Clock()
 
         # Initialize population of dinosaurs
-        self.population_controller.initialize_population()
+        if len(self.population_controller.population) == 0:
+            self.population_controller.initialize_population()
 
         running: bool = True
         n_generation: int = 0
@@ -141,6 +150,7 @@ class ChromeDinoGame:
                 # Reset game state
                 self.game_speed = settings.game_speed
                 self.points = 0
+                self.obstacles = []
                 self.obstacles = []
 
             # Update display
