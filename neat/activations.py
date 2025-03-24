@@ -28,3 +28,11 @@ def softmax(x: np.ndarray) -> np.ndarray:
     max_x = np.max(x)
     exp_x = np.exp(x - max_x)
     return exp_x / np.sum(exp_x)
+
+
+ACTIVATION_MAP = {
+    "relu": relu,
+    "softmax": softmax,
+}
+
+REVERSE_ACTIVATION_MAP = {v: k for k, v in ACTIVATION_MAP.items()}
