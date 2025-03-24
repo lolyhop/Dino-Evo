@@ -1,32 +1,29 @@
-from nn.individual import Individual
 from nn.genome import Genome
 from typing import Callable
 from nn.edge import Edge, Link
 from nn.node import Node
 import random
-from settings import settings
 import numpy as np
-from nn.relu import relu
-from typing import List
+from nn.activations import relu
 
 
-def crossover(dominant: Individual, recessive: Individual) -> Genome:
+def crossover(dominant: Genome, recessive: Genome) -> Genome:
     offspring: Genome = Genome(
-        dominant.genome.in_features,
-        dominant.genome.out_features,
+        dominant.in_features,
+        dominant.out_features,
     )
 
-    for node in dominant.genome.nodes:
+    for node in dominant.nodes:
         node_id: int = node.id
-        node_recessive = recessive.genome.find_node(node_id)
+        node_recessive = recessive.find_node(node_id)
         if not node_recessive:
             offspring.add_node(node)
         else:
             offspring.add_node(crossover_node(node, node_recessive))
 
-    for edge in dominant.genome.edges:
+    for edge in dominant.edges:
         link: Link = edge.link
-        edge_recessive = recessive.genome.find_edge(link)
+        edge_recessive = recessive.find_edge(link)
         if not edge_recessive:
             offspring.add_edge(edge)
         else:
@@ -51,17 +48,19 @@ def crossover_edge(a: Edge, b: Edge) -> Edge:
     return Edge(link, weight, is_enabled)
 
 
-def mutate(genome: Genome) -> None:
-    if random.random() < settings.mutation_rate:
+def mutate(
+    genome: Genome,
+    mutation_rate: float,
+    mutation_scale: float,
+) -> None:
+    if random.random() < mutation_rate:
         mutate_add_edge(genome)
-    if random.random() < settings.mutation_rate:
+    if random.random() < mutation_rate:
         mutate_add_node(genome)
-    if random.random() < settings.mutation_rate:
+    if random.random() < mutation_rate:
         mutate_remove_node(genome)
-    if random.random() < settings.mutation_rate:
-        mutate_weights(genome)
-    if random.random() < settings.mutation_rate:
-        mutate_bias(genome)
+    mutate_weights(genome, mutation_scale, mutation_rate)
+    mutate_bias(genome, mutation_scale, mutation_rate)
 
 
 def mutate_add_edge(genome: Genome) -> None:
@@ -105,7 +104,7 @@ def mutate_add_node(genome: Genome):
 
 
 def mutate_remove_node(genome: Genome):
-    hidden_nodes: List[int] = genome.get_hidden_nodes()
+    hidden_nodes: list[int] = genome.get_hidden_nodes()
     if not hidden_nodes:
         return
 
@@ -113,13 +112,21 @@ def mutate_remove_node(genome: Genome):
     genome.remove_node(node_id)
 
 
-def mutate_weights(genome: Genome) -> None:
+def mutate_weights(
+    genome: Genome,
+    mutation_rate: float,
+    mutation_scale: float,
+) -> None:
     for edge in genome.edges:
-        if random.random() < settings.mutation_rate:
-            edge.weight += np.random.normal(0, settings.mutation_scale)
+        if random.random() < mutation_rate:
+            edge.weight += np.random.normal(0, mutation_scale)
 
 
-def mutate_bias(genome: Genome) -> None:
+def mutate_bias(
+    genome: Genome,
+    mutation_rate: float,
+    mutation_scale: float,
+) -> None:
     for node in genome.nodes:
-        if random.random() < settings.mutation_rate:
-            node.bias += np.random.normal(0, settings.mutation_scale)
+        if random.random() < mutation_rate:
+            node.bias += np.random.normal(0, mutation_scale)

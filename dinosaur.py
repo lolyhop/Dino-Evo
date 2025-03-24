@@ -1,13 +1,12 @@
-import random
-from typing import List, Dict, Any, Literal, Tuple
-
-import pygame
 from pygame import Rect, Surface
 from pygame.image import load
-
-from mlp import MLP
+from typing import Literal, Any
+from dinosaur_controller import DinosaurController
 from entities import Bird, Obstacle
 from settings import settings
+import pygame
+import random
+import numpy as np
 
 
 class Dinosaur:
@@ -16,13 +15,13 @@ class Dinosaur:
     Controlled by a neural network.
     """
 
-    def __init__(self, controller: MLP) -> None:
+    def __init__(self, controller: DinosaurController) -> None:
         # Assets
-        self.duck_img: List[Surface] = [
+        self.duck_img: list[Surface] = [
             load("assets/DinoDuck1.png"),
             load("assets/DinoDuck2.png"),
         ]
-        self.run_img: List[Surface] = [
+        self.run_img: list[Surface] = [
             load("assets/DinoRun1.png"),
             load("assets/DinoRun2.png"),
         ]
@@ -45,7 +44,7 @@ class Dinosaur:
         self.dino_rect: Rect = self.image.get_rect()
         self.dino_rect.x = self.x_pos
         self.dino_rect.y = self.y_pos
-        self.color_mod: Tuple[int, int, int] = (
+        self.color_mod: tuple[int, int, int] = (
             random.randint(100, 255),
             random.randint(100, 255),
             random.randint(100, 255),
@@ -53,24 +52,24 @@ class Dinosaur:
         self.transparency: int = 180
 
         # Dinosaur controller
-        self.dino_controller: MLP = controller
+        self.dino_controller: DinosaurController = controller
         self.fitness: int = 1
 
-    def update(self, game_metadata: Dict[str, Any]) -> None:
+    def update(self, game_metadata: dict[str, float]) -> None:
         """
         Update the dinosaur's state based on AI decisions or user input.
 
         Args:
-            obstacles: List of obstacles in the game
+            obstacles: list of obstacles in the game
         """
         if not self.is_alive:
             return None
 
-        features: Dict[str, Any] = self.extract_features(game_metadata)
+        features: np.ndarray = self.extract_features(game_metadata)
         action: Literal["up", "down"] = self.dino_controller.predict_action(features)
 
         # Convert action to input
-        userInput: Dict[int, bool] = {pygame.K_UP: False, pygame.K_DOWN: False}
+        userInput: dict[int, bool] = {pygame.K_UP: False, pygame.K_DOWN: False}
         if action == "up":
             userInput[pygame.K_UP] = True
         elif action == "down":
@@ -104,21 +103,21 @@ class Dinosaur:
         # Update fitness
         self.fitness += 1
 
-    def extract_features(self, game_metadata: Dict[str, Any]) -> Dict[str, Any]:
+    def extract_features(self, game_metadata: dict[str, Any]) -> np.ndarray:
         """
-        Extract features from the game state for AI decision making.
+        Extract features from the game state for AI decision making and convert to normalized numpy array.
 
         Args:
-            obstacles: List of obstacles in the game
+            game_metadata: dictionary containing game state information
 
         Returns:
-            Dictionary of features for AI input
+            numpy array of normalized features for AI input
         """
         # Initialize default values
         distance_to_obstacle: int = settings.screen_width
         obstacle_type: str = "None"
         bird_height: int = 0
-        obstacles: List[Obstacle] = game_metadata["obstacles"]
+        obstacles: list[Obstacle] = game_metadata["obstacles"]
         game_speed: int = game_metadata["game_speed"]
 
         if obstacles:
@@ -131,16 +130,38 @@ class Dinosaur:
             if isinstance(next_obstacle, Bird):
                 bird_height: int = next_obstacle.rect.y
 
-        # Create a feature vector
-        features = {
-            "dino_y": self.dino_rect.y,
-            "dino_jump_vel": self.jump_vel,
-            "distance_to_obstacle": distance_to_obstacle,
-            "obstacle_type": obstacle_type,
-            "bird_height": bird_height,
-            "obstacle_velocity": game_speed,
-        }
-        return features
+        # Extract numeric features
+        feature_vector = np.array(
+            [
+                self.dino_rect.y,
+                self.jump_vel,
+                distance_to_obstacle,
+                bird_height,
+                game_speed,
+            ]
+        )
+
+        # Encode obstacle type
+        obstacle_encoding: list[int] = [
+            0,
+            0,
+            0,
+            0,
+        ]  # [SmallCactus, LargeCactus, Bird, None]
+        match obstacle_type:
+            case "SmallCactus":
+                obstacle_encoding[0] = 1
+            case "LargeCactus":
+                obstacle_encoding[1] = 1
+            case "Bird":
+                obstacle_encoding[2] = 1
+            case "None":
+                obstacle_encoding[3] = 1
+
+        # Combine numeric features with obstacle encoding
+        feature_vector = np.concatenate([feature_vector, obstacle_encoding])
+
+        return feature_vector
 
     def duck(self) -> None:
         """Lower dinosaur position and update animation for ducking."""
@@ -184,7 +205,7 @@ class Dinosaur:
         r: int = max(0, min(255, self.color_mod[0]))
         g: int = max(0, min(255, self.color_mod[1]))
         b: int = max(0, min(255, self.color_mod[2]))
-        color: Tuple[int, int, int] = (r, g, b)
+        color: tuple[int, int, int] = (r, g, b)
         colored_image.fill(color, special_flags=pygame.BLEND_RGB_MULT)
 
         # Apply transparency
