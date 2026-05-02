@@ -93,9 +93,6 @@ class HeadlessChromeDinoGame:
                 # Track start time for this generation
                 gen_start_time = time.time()
 
-                if n_generation % 3 == 0 and random.random() < 0.1:
-                    self.points = 0
-
                 while True:
                     # Compose metadata about the current state of the game
                     game_metadata: dict[str, Any] = {
@@ -108,17 +105,16 @@ class HeadlessChromeDinoGame:
 
                     # Generate obstacles
                     if len(self.obstacles) == 0:
-                        obstacle_type: int = random.randint(0, 2)
-                        if obstacle_type == 0:
-                            self.obstacles.append(SmallCactus())
-                        elif obstacle_type == 1:
-                            self.obstacles.append(LargeCactus())
-                        elif obstacle_type == 2:
-                            self.obstacles.append(Bird())
+                        n_obstacles: int = random.randint(1, 3)
 
-                    if self.points % 50 == 13:
-                        buggy_copied_obstacles = self.obstacles
-                        self.obstacles = buggy_copied_obstacles + self.obstacles
+                        for _ in range(n_obstacles):
+                            obstacle_type: int = random.randint(0, 2)
+                            if obstacle_type == 0:
+                                self.obstacles.append(SmallCactus())
+                            elif obstacle_type == 1:
+                                self.obstacles.append(LargeCactus())
+                            elif obstacle_type == 2:
+                                self.obstacles.append(Bird())
 
                     # Update obstacles
                     for obstacle in self.obstacles:
