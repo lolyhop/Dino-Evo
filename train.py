@@ -79,6 +79,105 @@ class HeadlessChromeDinoGame:
             "Fitness/Distribution", np.array(fitness_values), n_generation
         )
 
+    def run(self) -> None:
+        """Main game loop that handles game state updates without rendering."""
+
+        if len(self.population_controller.population) == 0:
+            self.population_controller.initialize_population()
+
+        n_generation: int = 0
+        start_time = time.time()
+
+        try:
+            while True:
+                # Track start time for this generation
+                gen_start_time = time.time()
+
+                while True:
+                    # Compose metadata about the current state of the game
+                    game_metadata: dict[str, Any] = {
+                        "points": self.points,
+                        "game_speed": self.game_speed,
+                        "obstacles": self.obstacles,
+                    }
+
+                    self.population_controller.update_population(game_metadata)
+
+                    # Generate obstacles
+                    if len(self.obstacles) == 0:
+                        obstacle_type: int = random.randint(0, 2)
+                        if obstacle_type == 0:
+                            self.obstacles.append(SmallCactus())
+                        elif obstacle_type == 1:
+                            self.obstacles.append(LargeCactus())
+                        elif obstacle_type == 2:
+                            self.obstacles.append(Bird())
+
+                    # Update obstacles
+                    for obstacle in self.obstacles:
+                        obstacle.update(self.game_speed)
+
+                        # Remove obstacles that are off-screen
+                        if obstacle.rect.x < -obstacle.rect.width:
+                            self.obstacles.remove(obstacle)
+
+                    # Check for collisions with dinosaurs
+                    self.population_controller.check_collisions(self.obstacles)
+
+                    # Update score and game speed
+                    self.points += 1
+                    if self.points % 10 == 0:
+                        self.game_speed += settings.game_acceleration
+                        self.game_speed = min(self.game_speed, settings.max_game_speed)
+
+                    generation_time = time.time() - gen_start_time
+
+                    # Check termination conditions: population dead, time limit
+                    if (
+                        not self.population_controller.check_population_alive()
+                        or generation_time >= self.max_generation_time
+                    ):
+                        break
+
+                # Log statistics to TensorBoard
+                self._log_statistics(n_generation, start_time)
+
+                # Reinitialize population
+                n_generation += 1
+                self.population_controller.evolve_population()
+
+                # Reset game state
+                self.game_speed = settings.game_speed
+                self.points = 0
+                self.obstacles = []
+
+                # Periodically save population and adjust max generation time
+                if n_generation % 10 == 0:
+                    serialize_population(
+                        [
+                            dinosaur.dino_controller.genome
+                            for dinosaur in self.population_controller.population
+                        ],
+                        settings.serialization_path,
+                    )
+                    self.max_generation_time += random.randint(0, 2)
+
+        except KeyboardInterrupt:
+            # Log final statistics before exiting
+            print("\nTraining interrupted. Saving population...")
+            self._log_statistics(n_generation, start_time)
+
+            # Save population on exit
+            serialize_population(
+                [
+                    dinosaur.dino_controller.genome
+                    for dinosaur in self.population_controller.population
+                ],
+                settings.serialization_path,
+            )
+
+            # Close TensorBoard writer
+            self.writer.close()
 
 
 def main() -> None:
